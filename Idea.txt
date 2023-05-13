@@ -1,0 +1,1 @@
+Go static analyser for flagging captured references in goroutine closures, as described in pattern #1 in: https://www.uber.com/en-US/blog/data-race-patterns-in-go/ .
