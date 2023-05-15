@@ -60,6 +60,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	// TODO: Build a list of variables created in the closure
 	assignments := assignmentsInFunc(pass, funcLit)
 	fmt.Printf("%#v\n", assignments)
+	// TODO: Use ast.GenDecl instead
 
 	ast.Inspect(
 		funcLit,
