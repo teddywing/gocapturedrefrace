@@ -58,6 +58,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	fmt.Printf("%#v\n", formalParams)
 
 	// TODO: Build a list of variables created in the closure
+	assignments := assignmentsInFunc(pass, funcLit)
+	fmt.Printf("%#v\n", assignments)
 
 	ast.Inspect(
 		funcLit,
@@ -89,4 +91,36 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			return true
 		},
 	)
+}
+
+func assignmentsInFunc(
+	pass *analysis.Pass,
+	funcLit *ast.FuncLit,
+) []string {
+	assignments := []string{}
+
+	ast.Inspect(
+		funcLit,
+		func(node ast.Node) bool {
+			ident, ok := node.(*ast.Ident)
+			if !ok {
+				return true
+			}
+
+			if ident.Obj == nil || ident.Obj.Decl == nil {
+				return true
+			}
+
+			_, ok = ident.Obj.Decl.(*ast.AssignStmt)
+			if !ok {
+				return true
+			}
+
+			assignments = append(assignments, ident.Name)
+
+			return true
+		},
+	)
+
+	return assignments
 }
