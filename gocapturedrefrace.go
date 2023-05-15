@@ -72,6 +72,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	}
 	fmt.Printf("formalParams: %#v\n", formalParams)
 	// TODO: Ensure argument types are not references
+	// TODO: goStmt.Call.Args should also give us something like this.
 
 	// TODO: Build a list of variables created in the closure
 	assignments := assignmentsInFunc(pass, funcLit)
