@@ -51,11 +51,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 }
 
 func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
-	fmt.Print("Params: ")
+	formalParams := []*ast.Object{}
 	for _, field := range funcLit.Type.Params.List {
-		fmt.Printf("%#v, ", field.Names[0].Name)
+		formalParams = append(formalParams, field.Names[0].Obj)
 	}
-	fmt.Println()
+	fmt.Printf("%#v\n", formalParams)
 
 	ast.Inspect(
 		funcLit,
@@ -71,6 +71,12 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 			// TODO: Find out whether ident is a captured reference
 			// Maybe check if variable was not assigned or passed as an argument?
+
+			for _, param := range formalParams {
+				if ident.Obj == param {
+					return true
+				}
+			}
 
 			pass.Reportf(
 				ident.Pos(),
