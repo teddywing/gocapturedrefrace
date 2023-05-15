@@ -35,6 +35,19 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 				fmt.Printf("%#v\n", goStmt)
 
+				funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
+				funcObj := pass.TypesInfo.ObjectOf(funcIdent)
+				if funcObj != nil {
+					theFunc, ok := funcObj.(*types.Func)
+					if ok {
+						fmt.Printf("func scope: %#v\n", theFunc.Scope())
+					} else {
+						fmt.Println("func scope: error")
+					}
+				} else {
+					fmt.Println("funcObj: error")
+				}
+
 				// TODO: Get func literal of go statement
 				// TODO: Get variables in func literal
 				funcLit, ok := goStmt.Call.Fun.(*ast.FuncLit)
