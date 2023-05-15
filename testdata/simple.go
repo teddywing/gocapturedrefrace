@@ -11,5 +11,8 @@ func main() {
 		if capturedReference == 1 {
 			return
 		}
+
+		newVar := 0
+		newVar += 1
 	}()
 }
