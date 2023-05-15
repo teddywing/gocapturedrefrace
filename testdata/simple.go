@@ -23,3 +23,15 @@ func main() {
 		strings.Repeat(str, 3)
 	}(copied)
 }
+
+func argumentReference() {
+	type aStruct struct{
+		field int
+	}
+
+	s := aStruct{field: 0}
+
+	go func(s *aStruct) {
+		s.field += 1
+	}(&s)
+}

@@ -56,6 +56,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 		formalParams = append(formalParams, field.Names[0].Obj)
 	}
 	fmt.Printf("%#v\n", formalParams)
+	// TODO: Ensure argument types are not references
 
 	// TODO: Build a list of variables created in the closure
 	assignments := assignmentsInFunc(pass, funcLit)
