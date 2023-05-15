@@ -160,6 +160,12 @@ func assignmentsInFunc(
 				fmt.Printf("assignment: %v\n", assignment.Tok)
 			}
 
+			if pass.TypesInfo.Defs[ident] != nil {
+				fmt.Println("DEFINE:", ident)
+			} else {
+				fmt.Println("ASSIGN:", ident)
+			}
+
 			assignments = append(assignments, ident.Name)
 
 			return true
