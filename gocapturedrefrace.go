@@ -63,6 +63,9 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
+			// TODO: Find out whether ident is a captured reference
+			// Maybe check if variable was not assigned or passed as an argument?
+
 			pass.Reportf(
 				ident.Pos(),
 				"variable found %q",
