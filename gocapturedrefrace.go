@@ -57,6 +57,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	}
 	fmt.Printf("%#v\n", formalParams)
 
+	// TODO: Build a list of variables created in the closure
+
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
