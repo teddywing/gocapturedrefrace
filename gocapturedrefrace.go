@@ -156,6 +156,8 @@ func assignmentsInFunc(
 				fmt.Printf("assignment: %v is DEFINE\n", ident.Name)
 			} else if assignment.Tok == token.ASSIGN {
 				fmt.Printf("assignment: %v is ASSIGN\n", ident.Name)
+			} else {
+				fmt.Printf("assignment: %v\n", assignment.Tok)
 			}
 
 			assignments = append(assignments, ident.Name)
