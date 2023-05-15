@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/printer"
+	"go/token"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -55,12 +56,12 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	for _, field := range funcLit.Type.Params.List {
 		formalParams = append(formalParams, field.Names[0].Obj)
 	}
-	fmt.Printf("%#v\n", formalParams)
+	fmt.Printf("formalParams: %#v\n", formalParams)
 	// TODO: Ensure argument types are not references
 
 	// TODO: Build a list of variables created in the closure
 	assignments := assignmentsInFunc(pass, funcLit)
-	fmt.Printf("%#v\n", assignments)
+	fmt.Printf("variable declarations: %#v\n", assignments)
 	// TODO: Use ast.GenDecl instead
 
 	ast.Inspect(
@@ -98,27 +99,49 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 func assignmentsInFunc(
 	pass *analysis.Pass,
 	funcLit *ast.FuncLit,
-) []string {
-	assignments := []string{}
+) []*ast.Object {
+	assignments := []*ast.Object{}
 
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
-			ident, ok := node.(*ast.Ident)
+			decl, ok := node.(*ast.GenDecl)
 			if !ok {
 				return true
 			}
 
-			if ident.Obj == nil || ident.Obj.Decl == nil {
+			fmt.Printf("decl: %#v\n", decl)
+
+			if decl.Tok != token.VAR {
 				return true
 			}
 
-			_, ok = ident.Obj.Decl.(*ast.AssignStmt)
-			if !ok {
-				return true
+			for _, spec := range decl.Specs {
+				valueSpec, ok := spec.(*ast.ValueSpec)
+				if !ok {
+					return true
+				}
+
+				fmt.Printf("valueSpec: %#v\n", valueSpec)
+
+				assignments = append(assignments, valueSpec.Names[0].Obj)
 			}
 
-			assignments = append(assignments, ident.Name)
+			// ident, ok := node.(*ast.Ident)
+			// if !ok {
+			// 	return true
+			// }
+			//
+			// if ident.Obj == nil || ident.Obj.Decl == nil {
+			// 	return true
+			// }
+			//
+			// _, ok = ident.Obj.Decl.(*ast.AssignStmt)
+			// if !ok {
+			// 	return true
+			// }
+			//
+			// assignments = append(assignments, ident.Name)
 
 			return true
 		},

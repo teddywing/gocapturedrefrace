@@ -21,6 +21,10 @@ func main() {
 
 		str := "a"
 		strings.Repeat(str, 3)
+
+		var decl string
+		decl = "b"
+		strings.Repeat(decl, 2)
 	}(copied)
 }
 
