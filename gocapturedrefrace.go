@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"go/types"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -164,6 +165,19 @@ func assignmentsInFunc(
 				fmt.Println("DEFINE:", ident)
 			} else {
 				fmt.Println("ASSIGN:", ident)
+			}
+
+			obj := pass.TypesInfo.ObjectOf(ident)
+			if obj != nil {
+				fmt.Printf("obj: %#v\n", obj)
+
+				theVar, ok := obj.(*types.Var)
+				if !ok {
+					return true
+				}
+
+				fmt.Printf("obj origin: %#v\n", theVar.Origin())
+				fmt.Printf("obj parent: %#v\n", theVar.Parent())
 			}
 
 			assignments = append(assignments, ident.Name)
