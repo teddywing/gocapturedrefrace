@@ -63,6 +63,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	assignments := assignmentsInFunc(pass, funcLit)
 	fmt.Printf("variable declarations: %#v\n", assignments)
 	// TODO: Use ast.GenDecl instead
+	// ast.Scope?
 
 	ast.Inspect(
 		funcLit,
@@ -99,49 +100,65 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 func assignmentsInFunc(
 	pass *analysis.Pass,
 	funcLit *ast.FuncLit,
-) []*ast.Object {
-	assignments := []*ast.Object{}
+) []string {
+	assignments := []string{}
+	// ) []*ast.Object {
+	// 	assignments := []*ast.Object{}
 
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
-			decl, ok := node.(*ast.GenDecl)
+			// decl, ok := node.(*ast.GenDecl)
+			// if !ok {
+			// 	return true
+			// }
+			//
+			// fmt.Printf("decl: %#v\n", decl)
+			//
+			// if decl.Tok != token.VAR {
+			// 	return true
+			// }
+			//
+			// for _, spec := range decl.Specs {
+			// 	valueSpec, ok := spec.(*ast.ValueSpec)
+			// 	if !ok {
+			// 		return true
+			// 	}
+			//
+			// 	fmt.Printf("valueSpec: %#v\n", valueSpec)
+			//
+			// 	assignments = append(assignments, valueSpec.Names[0].Obj)
+			// }
+
+			// decl, ok := node.(*ast.DeclStmt)
+			// if !ok {
+			// 	return true
+			// }
+			//
+			// fmt.Printf("decl: %#v\n", decl)
+
+			ident, ok := node.(*ast.Ident)
 			if !ok {
 				return true
 			}
 
-			fmt.Printf("decl: %#v\n", decl)
-
-			if decl.Tok != token.VAR {
+			if ident.Obj == nil || ident.Obj.Decl == nil {
 				return true
 			}
 
-			for _, spec := range decl.Specs {
-				valueSpec, ok := spec.(*ast.ValueSpec)
-				if !ok {
-					return true
-				}
-
-				fmt.Printf("valueSpec: %#v\n", valueSpec)
-
-				assignments = append(assignments, valueSpec.Names[0].Obj)
+			assignment, ok := ident.Obj.Decl.(*ast.AssignStmt)
+			if !ok {
+				return true
 			}
 
-			// ident, ok := node.(*ast.Ident)
-			// if !ok {
-			// 	return true
-			// }
-			//
-			// if ident.Obj == nil || ident.Obj.Decl == nil {
-			// 	return true
-			// }
-			//
-			// _, ok = ident.Obj.Decl.(*ast.AssignStmt)
-			// if !ok {
-			// 	return true
-			// }
-			//
-			// assignments = append(assignments, ident.Name)
+			// fmt.Printf("assignment: %#v\n", assignment.Tok)
+			if assignment.Tok == token.DEFINE {
+				fmt.Printf("assignment: %v is DEFINE\n", ident.Name)
+			} else if assignment.Tok == token.ASSIGN {
+				fmt.Printf("assignment: %v is ASSIGN\n", ident.Name)
+			}
+
+			assignments = append(assignments, ident.Name)
 
 			return true
 		},
