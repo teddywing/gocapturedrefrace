@@ -51,6 +51,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 }
 
 func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
+	fmt.Print("Params: ")
+	for _, field := range funcLit.Type.Params.List {
+		fmt.Printf("%#v, ", field.Names[0].Name)
+	}
+	fmt.Println()
+
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
