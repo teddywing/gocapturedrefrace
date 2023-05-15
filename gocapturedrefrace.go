@@ -2,6 +2,7 @@ package gocapturedrefrace
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/printer"
 
@@ -30,11 +31,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					panic(err)
 				}
 
-				pass.Reportf(
-					goStmt.Pos(),
-					"go statement found %q",
-					printedNode,
-				)
+				fmt.Printf("%#v\n", goStmt)
+
+				// TODO: Get func literal of go statement
+				// TODO: Get variables in func literal
+				funcLit, ok := goStmt.Call.Fun.(*ast.FuncLit)
+				if !ok {
+					return true
+				}
+
+				checkClosure(pass, funcLit)
 
 				return true
 			},
@@ -42,4 +48,24 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
+	ast.Inspect(
+		funcLit,
+		func(node ast.Node) bool {
+			variable, ok := node.(*ast.Ident)
+			if !ok {
+				return true
+			}
+
+			pass.Reportf(
+				variable.Pos(),
+				"variable found %q",
+				variable,
+			)
+
+			return true
+		},
+	)
 }
