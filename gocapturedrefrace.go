@@ -54,15 +54,19 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
-			variable, ok := node.(*ast.Ident)
+			ident, ok := node.(*ast.Ident)
 			if !ok {
 				return true
 			}
 
+			if ident.Obj == nil {
+				return true
+			}
+
 			pass.Reportf(
-				variable.Pos(),
+				ident.Pos(),
 				"variable found %q",
-				variable,
+				ident,
 			)
 
 			return true
