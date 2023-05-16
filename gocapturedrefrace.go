@@ -45,10 +45,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					)
 				}
 
-				// Get the closure's scope.
-				funcScope := pass.TypesInfo.Scopes[funcLit.Type]
-
-				checkClosure(pass, funcLit, funcScope)
+				checkClosure(pass, funcLit)
 
 				return true
 			},
@@ -60,11 +57,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 // checkClosure reports variables used in funcLit that are captured from an
 // outer scope.
-func checkClosure(
-	pass *analysis.Pass,
-	funcLit *ast.FuncLit,
-	funcScope *types.Scope,
-) {
+func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
+	// Get the closure's scope.
+	funcScope := pass.TypesInfo.Scopes[funcLit.Type]
+
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
