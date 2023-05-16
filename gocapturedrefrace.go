@@ -35,6 +35,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 				fmt.Printf("%#v\n", goStmt)
 
+				// TODO: How to get types.Func or {ast,types}.Scope of function literal?
 				funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
 				funcObj := pass.TypesInfo.ObjectOf(funcIdent)
 				if funcObj != nil {
