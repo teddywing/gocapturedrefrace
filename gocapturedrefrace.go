@@ -91,6 +91,9 @@ func checkClosure(
 	// TODO: Use ast.GenDecl instead
 	// ast.Scope?
 
+	// TODO: Need to find variables not declared in the closure, and
+	// reference arguments
+
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
