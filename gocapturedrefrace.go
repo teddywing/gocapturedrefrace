@@ -58,6 +58,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
+// checkClosure reports variables used in funcLit that are captured from an
+// outer scope.
 func checkClosure(
 	pass *analysis.Pass,
 	funcLit *ast.FuncLit,
