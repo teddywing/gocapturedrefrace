@@ -141,6 +141,9 @@ func checkClosure(
 				)
 			}
 
+			// TODO: Ignore `aStruct` type
+			// TODO: Report references in argument list
+
 			return true
 		},
 	)
