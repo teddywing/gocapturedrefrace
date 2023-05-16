@@ -86,8 +86,8 @@ func checkClosure(
 	// TODO: goStmt.Call.Args should also give us something like this.
 
 	// TODO: Build a list of variables created in the closure
-	assignments := assignmentsInFunc(pass, funcLit)
-	fmt.Printf("variable declarations: %#v\n", assignments)
+	// assignments := assignmentsInFunc(pass, funcLit)
+	// fmt.Printf("variable declarations: %#v\n", assignments)
 	// TODO: Use ast.GenDecl instead
 	// ast.Scope?
 
@@ -109,11 +109,11 @@ func checkClosure(
 			// TODO: Find out whether ident is a captured reference
 			// Maybe check if variable was not assigned or passed as an argument?
 
-			for _, param := range formalParams {
-				if ident.Obj == param {
-					return true
-				}
-			}
+			// for _, param := range formalParams {
+			// 	if ident.Obj == param {
+			// 		return true
+			// 	}
+			// }
 
 			// TODO: Use (*types.Scope).LookupParent with ident to find out
 			// whether a variable was defined in an outer scope.
@@ -128,11 +128,13 @@ func checkClosure(
 				fmt.Printf("In function scope %v\n", scopeObj)
 			}
 
-			pass.Reportf(
-				ident.Pos(),
-				"variable found %q",
-				ident,
-			)
+			if funcScope != scope {
+				pass.Reportf(
+					ident.Pos(),
+					"captured reference %s in goroutine closure",
+					ident,
+				)
+			}
 
 			return true
 		},

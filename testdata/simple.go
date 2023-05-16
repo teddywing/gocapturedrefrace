@@ -12,7 +12,7 @@ func main() {
 		capturedReference2 += 1 // want "captured reference capturedReference2 in goroutine closure"
 		copied += 1
 
-		if capturedReference == 1 {
+		if capturedReference == 1 { // want "captured reference capturedReference in goroutine closure"
 			return
 		}
 
