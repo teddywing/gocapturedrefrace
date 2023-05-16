@@ -56,6 +56,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					return true
 				}
 
+				// scope := pass.TypesInfo.Scopes[funcLit]
+				scope := pass.TypesInfo.Scopes[goStmt]
+				fmt.Println("scope:", scope)
+
 				checkClosure(pass, funcLit)
 
 				return true
