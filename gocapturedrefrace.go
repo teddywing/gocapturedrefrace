@@ -108,6 +108,9 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				}
 			}
 
+			// TODO: Use (*types.Scope).LookupParent with ident to find out
+			// whether a variable was defined in an outer scope.
+
 			pass.Reportf(
 				ident.Pos(),
 				"variable found %q",
