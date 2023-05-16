@@ -1,8 +1,8 @@
 package main
 
 import (
-	"git.teddywing.com/gocapturedrefrace"
 	"golang.org/x/tools/go/analysis/singlechecker"
+	"gopkg.teddywing.com/gocapturedrefrace"
 )
 
 func main() {
