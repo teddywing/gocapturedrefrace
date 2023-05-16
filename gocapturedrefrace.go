@@ -59,10 +59,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				// scope := pass.TypesInfo.Scopes[funcLit]
 				// scope := pass.TypesInfo.Scopes[goStmt]
 				// scope := pass.TypesInfo.Scopes[funcLit.Body]
-				scope := pass.TypesInfo.Scopes[funcLit.Type]
-				fmt.Println("scope:", scope)
+				funcScope := pass.TypesInfo.Scopes[funcLit.Type]
+				fmt.Println("scope:", funcScope)
 
-				checkClosure(pass, funcLit)
+				checkClosure(pass, funcLit, funcScope)
 
 				return true
 			},
@@ -72,7 +72,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
+func checkClosure(
+	pass *analysis.Pass,
+	funcLit *ast.FuncLit,
+	funcScope *types.Scope,
+) {
 	formalParams := []*ast.Object{}
 	for _, field := range funcLit.Type.Params.List {
 		formalParams = append(formalParams, field.Names[0].Obj)
@@ -110,6 +114,10 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 			// TODO: Use (*types.Scope).LookupParent with ident to find out
 			// whether a variable was defined in an outer scope.
+			scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+			fmt.Println("LookupParent:")
+			fmt.Printf("    scope: %#v\n", scope)
+			fmt.Printf("    obj  : %#v\n", scopeObj)
 
 			pass.Reportf(
 				ident.Pos(),
