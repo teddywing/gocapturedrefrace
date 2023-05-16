@@ -121,6 +121,12 @@ func checkClosure(
 			fmt.Println("LookupParent:")
 			fmt.Printf("    scope: %#v\n", scope)
 			fmt.Printf("    obj  : %#v\n", scopeObj)
+			// If scope and scopeObj are nil, then variable is local
+
+			// This also means variable is local.
+			if funcScope == scope {
+				fmt.Printf("In function scope %v\n", scopeObj)
+			}
 
 			pass.Reportf(
 				ident.Pos(),
