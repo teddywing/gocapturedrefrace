@@ -133,6 +133,11 @@ func checkClosure(
 				return true
 			}
 
+			_, ok = scopeObj.(*types.Var)
+			if !ok {
+				return true
+			}
+
 			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
@@ -141,7 +146,6 @@ func checkClosure(
 				)
 			}
 
-			// TODO: Ignore `aStruct` type
 			// TODO: Report references in argument list
 
 			return true
