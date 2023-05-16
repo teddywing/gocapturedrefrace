@@ -20,18 +20,21 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		ast.Inspect(
 			file,
 			func(node ast.Node) bool {
+				// Find `go` statements.
 				goStmt, ok := node.(*ast.GoStmt)
 				if !ok {
 					return true
 				}
 
+				// Look for a function literal after the `go` statement.
 				funcLit, ok := goStmt.Call.Fun.(*ast.FuncLit)
 				if !ok {
 					return true
 				}
 
+				// Inspect closure argument list.
 				for _, arg := range funcLit.Type.Params.List {
-					// TODO: Explain
+					// Report reference arguments.
 					_, ok := arg.Type.(*ast.StarExpr)
 					if !ok {
 						continue
@@ -44,6 +47,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					)
 				}
 
+				// Get the closure's scope.
 				funcScope := pass.TypesInfo.Scopes[funcLit.Type]
 
 				checkClosure(pass, funcLit, funcScope)
