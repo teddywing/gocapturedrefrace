@@ -1,10 +1,8 @@
 package gocapturedrefrace
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
-	"go/printer"
 	"go/token"
 	"go/types"
 
@@ -27,54 +25,13 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					return true
 				}
 
-				var printedNode bytes.Buffer
-				err := printer.Fprint(&printedNode, pass.Fset, goStmt)
-				if err != nil {
-					panic(err)
-				}
-
-				fmt.Printf("%#v\n", goStmt)
-				fmt.Printf("closure arguments: %#v\n", goStmt.Call.Args)
-
-				// for _, arg := range goStmt.Call.Args {
-				// 	argIdent, ok := arg.(*ast.Ident)
-				// 	if !ok {
-				// 		return true
-				// 	}
-				//
-				// 	fmt.Printf("argIdent: %s: %#v\n", argIdent.Name, argIdent.Obj)
-				// 	// Doesn't include `(s *aStruct)` which is a `*ast.UnaryExpr`, not a `*ast.Ident`.
-				// }
-
-				// TODO: How to get types.Func or {ast,types}.Scope of function literal?
-				funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
-				funcObj := pass.TypesInfo.ObjectOf(funcIdent)
-				if funcObj != nil {
-					theFunc, ok := funcObj.(*types.Func)
-					if ok {
-						fmt.Printf("func scope: %#v\n", theFunc.Scope())
-					} else {
-						fmt.Println("func scope: error")
-					}
-				} else {
-					fmt.Println("funcObj: error")
-				}
-
-				// TODO: Get func literal of go statement
-				// TODO: Get variables in func literal
 				funcLit, ok := goStmt.Call.Fun.(*ast.FuncLit)
 				if !ok {
 					return true
 				}
 
-				fmt.Printf("funcLit params: %#v\n", funcLit.Type.Params.List)
 				for _, arg := range funcLit.Type.Params.List {
-					fmt.Printf(
-						"funcLit param: %s ; type: %#v\n",
-						arg.Names[0].Name,
-						arg.Type,
-					)
-
+					// TODO: Explain
 					_, ok := arg.Type.(*ast.StarExpr)
 					if !ok {
 						continue
@@ -87,11 +44,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					)
 				}
 
-				// scope := pass.TypesInfo.Scopes[funcLit]
-				// scope := pass.TypesInfo.Scopes[goStmt]
-				// scope := pass.TypesInfo.Scopes[funcLit.Body]
 				funcScope := pass.TypesInfo.Scopes[funcLit.Type]
-				fmt.Println("scope:", funcScope)
 
 				checkClosure(pass, funcLit, funcScope)
 
