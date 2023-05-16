@@ -128,6 +128,11 @@ func checkClosure(
 				fmt.Printf("In function scope %v\n", scopeObj)
 			}
 
+			// Identifier is local to the closure.
+			if scope == nil && scopeObj == nil {
+				return true
+			}
+
 			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
