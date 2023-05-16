@@ -36,15 +36,15 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				fmt.Printf("%#v\n", goStmt)
 				fmt.Printf("closure arguments: %#v\n", goStmt.Call.Args)
 
-				for _, arg := range goStmt.Call.Args {
-					argIdent, ok := arg.(*ast.Ident)
-					if !ok {
-						return true
-					}
-
-					fmt.Printf("argIdent: %s: %#v\n", argIdent.Name, argIdent.Obj)
-					// Doesn't include `(s *aStruct)` which is a `*ast.UnaryExpr`, not a `*ast.Ident`.
-				}
+				// for _, arg := range goStmt.Call.Args {
+				// 	argIdent, ok := arg.(*ast.Ident)
+				// 	if !ok {
+				// 		return true
+				// 	}
+				//
+				// 	fmt.Printf("argIdent: %s: %#v\n", argIdent.Name, argIdent.Obj)
+				// 	// Doesn't include `(s *aStruct)` which is a `*ast.UnaryExpr`, not a `*ast.Ident`.
+				// }
 
 				// TODO: How to get types.Func or {ast,types}.Scope of function literal?
 				funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
@@ -65,6 +65,17 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				funcLit, ok := goStmt.Call.Fun.(*ast.FuncLit)
 				if !ok {
 					return true
+				}
+
+				fmt.Printf("funcLit params: %#v\n", funcLit.Type.Params.List)
+				for _, arg := range funcLit.Type.Params.List {
+					fmt.Printf("funcLit param:")
+
+					for _, argNameIdent := range arg.Names {
+						fmt.Printf("%#v, ", argNameIdent.Name)
+					}
+
+					fmt.Println()
 				}
 
 				// scope := pass.TypesInfo.Scopes[funcLit]
