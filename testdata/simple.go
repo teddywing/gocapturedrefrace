@@ -35,7 +35,7 @@ func argumentReference() {
 
 	s := aStruct{field: 0}
 
-	go func(s *aStruct) {
-		s.field += 1 // want "reference s in goroutine closure"
+	go func(s *aStruct) { // want "reference s in goroutine closure"
+		s.field += 1
 	}(&s)
 }

@@ -69,13 +69,22 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 				fmt.Printf("funcLit params: %#v\n", funcLit.Type.Params.List)
 				for _, arg := range funcLit.Type.Params.List {
-					fmt.Printf("funcLit param:")
+					fmt.Printf(
+						"funcLit param: %s ; type: %#v\n",
+						arg.Names[0].Name,
+						arg.Type,
+					)
 
-					for _, argNameIdent := range arg.Names {
-						fmt.Printf("%#v, ", argNameIdent.Name)
+					_, ok := arg.Type.(*ast.StarExpr)
+					if !ok {
+						continue
 					}
 
-					fmt.Println()
+					pass.Reportf(
+						arg.Pos(),
+						"reference %s in goroutine closure",
+						arg.Names[0],
+					)
 				}
 
 				// scope := pass.TypesInfo.Scopes[funcLit]
