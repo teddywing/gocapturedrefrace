@@ -10,6 +10,6 @@ func (s *AStruct) setField(value string) {
 
 func (s *AStruct) method2() {
 	go func() {
-		s.setField("test")
+		s.setField("test") // want "captured reference s in goroutine closure"
 	}()
 }

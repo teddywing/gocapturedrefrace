@@ -8,8 +8,8 @@ func main() {
 	copied := 0
 
 	go func(copied int) {
-		capturedReference += 1
-		capturedReference2 += 1
+		capturedReference += 1 // want "captured reference capturedReference in goroutine closure"
+		capturedReference2 += 1 // want "captured reference capturedReference2 in goroutine closure"
 		copied += 1
 
 		if capturedReference == 1 {
@@ -36,6 +36,6 @@ func argumentReference() {
 	s := aStruct{field: 0}
 
 	go func(s *aStruct) {
-		s.field += 1
+		s.field += 1 // want "reference s in goroutine closure"
 	}(&s)
 }
