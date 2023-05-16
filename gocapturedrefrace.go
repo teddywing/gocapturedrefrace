@@ -34,6 +34,17 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 
 				fmt.Printf("%#v\n", goStmt)
+				fmt.Printf("closure arguments: %#v\n", goStmt.Call.Args)
+
+				for _, arg := range goStmt.Call.Args {
+					argIdent, ok := arg.(*ast.Ident)
+					if !ok {
+						return true
+					}
+
+					fmt.Printf("argIdent: %s: %#v\n", argIdent.Name, argIdent.Obj)
+					// Doesn't include `(s *aStruct)` which is a `*ast.UnaryExpr`, not a `*ast.Ident`.
+				}
 
 				// TODO: How to get types.Func or {ast,types}.Scope of function literal?
 				funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
