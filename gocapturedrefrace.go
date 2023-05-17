@@ -26,6 +26,8 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
+var version = "0.0.1"
+
 var Analyzer = &analysis.Analyzer{
 	Name: "gocapturedrefrace",
 	Doc:  "reports captured references in goroutine closures",
@@ -108,13 +110,14 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 			// Ignore captured callable variables, like function arguments.
 			_, isVariableTypeSignature := variable.Type().(*types.Signature)
+			if isVariableTypeSignature {
+				return true
+			}
 
 			// TODO: Ignore shadowing variables.
 
 			// Identifier was defined in a different scope.
-			if funcScope != scope &&
-				!isVariableTypeSignature {
-
+			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
 					"captured reference %s in goroutine closure",
