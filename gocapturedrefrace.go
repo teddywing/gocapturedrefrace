@@ -87,7 +87,9 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
-			checkShadowing(pass, node, funcScope)
+			if isShadowingDeclaration(pass, node, funcScope) {
+				return true
+			}
 
 			ident, ok := node.(*ast.Ident)
 			if !ok {
@@ -137,37 +139,41 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 }
 
 // TODO: doc
-func checkShadowing(
+func isShadowingDeclaration(
 	pass *analysis.Pass,
 	node ast.Node,
 	funcScope *types.Scope,
-) {
+) bool {
 	assignStmt, ok := node.(*ast.AssignStmt)
 	if !ok {
-		return
+		return false
 	}
 
 	if assignStmt.Tok != token.DEFINE {
-		return
+		return false
 	}
 
 	for _, lhs := range assignStmt.Lhs {
 		ident, ok := lhs.(*ast.Ident)
 		if !ok {
-			return
+			return false
 		}
 		fmt.Printf("assignStmt: %#v\n", ident)
 
-		if ident != nil {
-			return
+		if ident == nil {
+			return false
 		}
+
+		return true
 
 		// TODO: If ident is in parent, ignore it an move on.
 		// scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
-        //
+		//
 		// // Identifier is local to the closure.
 		// if scope == nil && scopeObj == nil {
 		// 	return
 		// }
 	}
+
+	return false
 }
