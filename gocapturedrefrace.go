@@ -16,7 +16,6 @@
 // along with Gocapturedrefrace. If not, see
 // <https://www.gnu.org/licenses/>.
 
-
 // TODO: package documentation.
 package gocapturedrefrace
 
@@ -52,8 +51,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 				// Inspect closure argument list.
 				for _, arg := range funcLit.Type.Params.List {
-					// TODO: Ignore closures passed as arguments.
-
 					// Report reference arguments.
 					_, ok := arg.Type.(*ast.StarExpr)
 					if !ok {
@@ -104,15 +101,20 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			}
 
 			// Ignore non-variable identifiers.
-			_, ok = scopeObj.(*types.Var)
+			variable, ok := scopeObj.(*types.Var)
 			if !ok {
 				return true
 			}
 
+			// Ignore captured callable variables, like function arguments.
+			_, isVariableTypeSignature := variable.Type().(*types.Signature)
+
 			// TODO: Ignore shadowing variables.
 
 			// Identifier was defined in a different scope.
-			if funcScope != scope {
+			if funcScope != scope &&
+				!isVariableTypeSignature {
+
 				pass.Reportf(
 					ident.Pos(),
 					"captured reference %s in goroutine closure",
