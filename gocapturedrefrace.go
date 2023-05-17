@@ -17,6 +17,7 @@
 // <https://www.gnu.org/licenses/>.
 
 
+// TODO: package documentation.
 package gocapturedrefrace
 
 import (
