@@ -51,6 +51,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 				// Inspect closure argument list.
 				for _, arg := range funcLit.Type.Params.List {
+					// TODO: Ignore closures passed as arguments.
+
 					// Report reference arguments.
 					_, ok := arg.Type.(*ast.StarExpr)
 					if !ok {
@@ -105,6 +107,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			if !ok {
 				return true
 			}
+
+			// TODO: Ignore shadowing variables.
 
 			// Identifier was defined in a different scope.
 			if funcScope != scope {
