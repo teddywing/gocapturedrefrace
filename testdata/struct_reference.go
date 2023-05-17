@@ -27,8 +27,22 @@ func (s *AStruct) setField(value string) {
 	s.field = value
 }
 
+func (s *AStruct) returnSomething() int {
+	return 9
+}
+
 func (s *AStruct) method2() {
+	ret := 0
+
 	go func() {
 		s.setField("test") // want "captured reference s in goroutine closure"
+
+		ret = s.returnSomething() /*
+			// want
+			"captured reference ret in goroutine closure"
+			"captured reference s in goroutine closure"
+		*/
 	}()
+
+	ret += 1
 }
