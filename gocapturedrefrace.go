@@ -37,6 +37,7 @@ var Analyzer = &analysis.Analyzer{
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
+	// TODO: Since we're calling ast.Inspect a bunch of times, maybe it's worthwhile using passes/inspect now.
 	for _, file := range pass.Files {
 		ast.Inspect(
 			file,
@@ -144,6 +145,8 @@ func isShadowingDeclaration(
 	node ast.Node,
 	funcScope *types.Scope,
 ) bool {
+	// TODO: Plan: Change this function to checkShadowing. Call ast.Inspect and build a list of local assignments in the closure. Then in checkClosure, ignore objects in the local assignments list.
+
 	assignStmt, ok := node.(*ast.AssignStmt)
 	if !ok {
 		return false
