@@ -20,7 +20,9 @@
 package gocapturedrefrace
 
 import (
+	"fmt"
 	"go/ast"
+	"go/token"
 	"go/types"
 
 	"golang.org/x/tools/go/analysis"
@@ -85,6 +87,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
+			checkShadowing(pass, node, funcScope)
+
 			ident, ok := node.(*ast.Ident)
 			if !ok {
 				return true
@@ -108,6 +112,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
+			// fmt.Printf("variable: %#v\n", variable)
+
 			// Ignore captured callable variables, like function arguments.
 			_, isVariableTypeSignature := variable.Type().(*types.Signature)
 			if isVariableTypeSignature {
@@ -128,4 +134,40 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			return true
 		},
 	)
+}
+
+// TODO: doc
+func checkShadowing(
+	pass *analysis.Pass,
+	node ast.Node,
+	funcScope *types.Scope,
+) {
+	assignStmt, ok := node.(*ast.AssignStmt)
+	if !ok {
+		return
+	}
+
+	if assignStmt.Tok != token.DEFINE {
+		return
+	}
+
+	for _, lhs := range assignStmt.Lhs {
+		ident, ok := lhs.(*ast.Ident)
+		if !ok {
+			return
+		}
+		fmt.Printf("assignStmt: %#v\n", ident)
+
+		if ident != nil {
+			return
+		}
+
+		// TODO: If ident is in parent, ignore it an move on.
+		// scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+        //
+		// // Identifier is local to the closure.
+		// if scope == nil && scopeObj == nil {
+		// 	return
+		// }
+	}
 }
