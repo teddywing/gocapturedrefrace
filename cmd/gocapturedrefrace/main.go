@@ -21,9 +21,9 @@ package main
 
 import (
 	"golang.org/x/tools/go/analysis/singlechecker"
-	"gopkg.teddywing.com/gocapturedrefrace"
+	"gopkg.teddywing.com/capturedrefrace"
 )
 
 func main() {
-	singlechecker.Main(gocapturedrefrace.Analyzer)
+	singlechecker.Main(capturedrefrace.Analyzer)
 }

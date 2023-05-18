@@ -17,17 +17,17 @@
 // <https://www.gnu.org/licenses/>.
 
 
-package gocapturedrefrace_test
+package capturedrefrace_test
 
 import (
 	"testing"
 
 	"golang.org/x/tools/go/analysis/analysistest"
-	"gopkg.teddywing.com/gocapturedrefrace"
+	"gopkg.teddywing.com/capturedrefrace"
 )
 
 func Test(t *testing.T) {
 	testdata := analysistest.TestData()
 
-	analysistest.Run(t, testdata, gocapturedrefrace.Analyzer, ".")
+	analysistest.Run(t, testdata, capturedrefrace.Analyzer, ".")
 }

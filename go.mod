@@ -1,4 +1,4 @@
-module gopkg.teddywing.com/gocapturedrefrace
+module gopkg.teddywing.com/capturedrefrace
 
 go 1.20
 

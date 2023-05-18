@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/>.
 
 // TODO: package documentation.
-package gocapturedrefrace
+package capturedrefrace
 
 import (
 	"go/ast"
@@ -32,7 +32,7 @@ import (
 var version = "0.0.1"
 
 var Analyzer = &analysis.Analyzer{
-	Name:     "gocapturedrefrace",
+	Name:     "capturedrefrace",
 	Doc:      "reports captured references in goroutine closures",
 	Run:      run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
