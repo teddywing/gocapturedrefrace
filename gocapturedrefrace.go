@@ -180,9 +180,9 @@ func findLocalVarDeclarations(
 				}
 
 			case *ast.GenDecl:
-				decl := varDeclaration(node)
-				if decl != nil {
-					declarations = append(declarations, decl)
+				decls := varDeclarations(node)
+				if decls != nil {
+					declarations = append(declarations, decls...)
 				}
 			}
 
@@ -193,23 +193,25 @@ func findLocalVarDeclarations(
 	return declarations
 }
 
-// varDeclaration returns the identifier corresponding to variable declarations
-// in decl, or nil if decl is not a variable declaration.
-func varDeclaration(decl *ast.GenDecl) *ast.Ident {
+// varDeclarations returns the identifiers corresponding to variable
+// declarations in decl, or nil if decl is not a variable declaration.
+func varDeclarations(decl *ast.GenDecl) (declarations []*ast.Ident) {
 	if decl.Tok != token.VAR {
 		return nil
 	}
 
+	declarations = []*ast.Ident{}
+
 	for _, spec := range decl.Specs {
 		valueSpec, ok := spec.(*ast.ValueSpec)
 		if !ok {
-			return nil
+			return declarations
 		}
 
 		for _, ident := range valueSpec.Names {
-			return ident
+			declarations = append(declarations, ident)
 		}
 	}
 
-	return nil
+	return declarations
 }

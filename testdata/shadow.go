@@ -31,3 +31,23 @@ func shadow() {
 		}
 	}()
 }
+
+func multiIdentifierDeclaration() {
+	var err1, err2 error
+	err1 = nil
+	err2 = nil
+	if err1 != nil || err2 != nil {
+		log.Print(err1, err2)
+	}
+
+	go func() {
+		// err1 and err2 are redeclared here and shadow the outer scope. No
+		// diagnostic should be printed.
+		var err1, err2 error
+		err1 = errors.New("shadowing declaration err1")
+		err2 = errors.New("shadowing declaration err2")
+		if err1 != nil || err2 != nil {
+			log.Print(err1, err2)
+		}
+	}()
+}
