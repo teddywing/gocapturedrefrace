@@ -156,28 +156,8 @@ func findLocalVarDeclarations(
 		func(node ast.Node) bool {
 			switch node := node.(type) {
 			case *ast.AssignStmt:
-				// assignStmt, ok := node.(*ast.AssignStmt)
-				// if !ok {
-				// 	return true
-				// }
-				assignStmt := node
-
-				if assignStmt.Tok != token.DEFINE {
-					return true
-				}
-
-				for _, lhs := range assignStmt.Lhs {
-					ident, ok := lhs.(*ast.Ident)
-					if !ok {
-						return true
-					}
-
-					if ident == nil {
-						return true
-					}
-
-					declarations = append(declarations, ident)
-				}
+				assignments := assignmentDefinitions(node)
+				declarations = append(declarations, assignments...)
 
 			case *ast.GenDecl:
 				decls := varDeclarations(node)
@@ -191,6 +171,34 @@ func findLocalVarDeclarations(
 	)
 
 	return declarations
+}
+
+// assignmentDefinitions returns the identifiers corresponding to variable
+// assignments in assignStmt, or nil if assignStmt does not declare any
+// variables.
+func assignmentDefinitions(
+	assignStmt *ast.AssignStmt,
+) (assignments []*ast.Ident) {
+	assignments = []*ast.Ident{}
+
+	if assignStmt.Tok != token.DEFINE {
+		return nil
+	}
+
+	for _, lhs := range assignStmt.Lhs {
+		ident, ok := lhs.(*ast.Ident)
+		if !ok {
+			continue
+		}
+
+		if ident == nil {
+			continue
+		}
+
+		assignments = append(assignments, ident)
+	}
+
+	return assignments
 }
 
 // varDeclarations returns the identifiers corresponding to variable
