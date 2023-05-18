@@ -86,7 +86,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 	// Build a list of assignments local to funcLit. These will be ignored as
 	// shadowed variables.
-	localAssignments := findLocalVarDeclarations(pass, funcLit)
+	localVarDeclarations := findLocalVarDeclarations(pass, funcLit)
 
 	ast.Inspect(
 		funcLit,
@@ -101,8 +101,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			}
 
 			// Ignore shadowed variables.
-			for _, localAssignmentIdent := range localAssignments {
-				if ident == localAssignmentIdent {
+			for _, declarationIdent := range localVarDeclarations {
+				if ident == declarationIdent {
 					return true
 				}
 			}
