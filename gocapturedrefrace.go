@@ -20,7 +20,6 @@
 package gocapturedrefrace
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -85,8 +84,9 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	// Get the closure's scope.
 	funcScope := pass.TypesInfo.Scopes[funcLit.Type]
 
-	localAssignments := checkShadowing(pass, funcLit)
-	fmt.Printf("localAssignments: %#v\n", localAssignments)
+	// Build a list of assignments local to funcLit. These will be ignored as
+	// shadowed variables.
+	localAssignments := findLocalAssignments(pass, funcLit)
 
 	ast.Inspect(
 		funcLit,
@@ -121,8 +121,6 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
-			// fmt.Printf("variable: %#v\n", variable)
-
 			// Ignore captured callable variables, like function arguments.
 			_, isVariableTypeSignature := variable.Type().(*types.Signature)
 			if isVariableTypeSignature {
@@ -145,14 +143,11 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	)
 }
 
-// TODO: doc
-func checkShadowing(
+// findLocalAssignments returns a list of all variable definitions in funcLit.
+func findLocalAssignments(
 	pass *analysis.Pass,
 	funcLit *ast.FuncLit,
-	// funcScope *types.Scope,
 ) (localAssignments []*ast.Ident) {
-	// TODO: Plan: Change this function to checkShadowing. Call ast.Inspect and build a list of local assignments in the closure. Then in checkClosure, ignore objects in the local assignments list.
-
 	localAssignments = []*ast.Ident{}
 
 	ast.Inspect(
@@ -172,21 +167,12 @@ func checkShadowing(
 				if !ok {
 					return true
 				}
-				fmt.Printf("assignStmt: %#v\n", ident)
 
 				if ident == nil {
 					return true
 				}
 
 				localAssignments = append(localAssignments, ident)
-
-				// TODO: If ident is in parent, ignore it an move on.
-				// scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
-				//
-				// // Identifier is local to the closure.
-				// if scope == nil && scopeObj == nil {
-				// 	return
-				// }
 			}
 
 			return true
