@@ -29,8 +29,6 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
-var version = "0.0.1"
-
 var Analyzer = &analysis.Analyzer{
 	Name:     "capturedrefrace",
 	Doc:      "reports captured references in goroutine closures",
