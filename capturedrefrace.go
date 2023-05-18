@@ -16,7 +16,38 @@
 // along with Gocapturedrefrace. If not, see
 // <https://www.gnu.org/licenses/>.
 
-// TODO: package documentation.
+// Package capturedrefrace defines an Analyzer that checks for captured
+// references in goroutine closures.
+//
+// # Analyzer capturedrefrace
+//
+// capturedrefrace: report captured variable references in goroutine
+// closures.
+//
+// Goroutines that run function closures can capture reference variables from
+// outer scopes which could lead to data races. This analyzer checks closures
+// run by goroutines and reports uses of all variables declared in outer
+// scopes, as well as arguments to the closure with a pointer type.
+//
+// For example:
+//
+//	func (r *Record) CapturedReference() {
+//		capturedReference := 0
+//		spline := &Spline{Curvature: 5.0}
+//
+//		go func(s *Spline) {
+//			capturedReference += 1 // closure captures the variable
+//				// 'capturedReference' in a goroutine, which could
+//				// lead to data races
+//
+//			if capturedReference > 0 {
+//				r.reticulateSplines() // goroutine closure captures 'r'
+//			}
+//
+//			s.Curvature = 3.0 // 's' is a pointer type which could
+//				// lead to data races
+//		}(spline)
+//	}
 package capturedrefrace
 
 import (
