@@ -54,7 +54,8 @@ the analyser produces the following results:
 
 
 ## Install
-TODO
+
+	$ go install gopkg.teddywing.com/capturedrefrace/cmd/gocapturedrefrace@latest
 
 
 ## License
