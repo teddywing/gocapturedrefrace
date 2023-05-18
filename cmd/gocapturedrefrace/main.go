@@ -26,6 +26,4 @@ import (
 
 func main() {
 	singlechecker.Main(gocapturedrefrace.Analyzer)
-
-	// TODO: version flag (-V)
 }
