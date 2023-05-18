@@ -86,7 +86,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 	// Build a list of assignments local to funcLit. These will be ignored as
 	// shadowed variables.
-	localVarDeclarations := findLocalVarDeclarations(pass, funcLit)
+	localVarDeclarations := findLocalVarDeclarations(funcLit)
 
 	ast.Inspect(
 		funcLit,
@@ -144,7 +144,6 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 // findLocalVarDeclarations returns a list of all variable declarations in
 // funcLit.
 func findLocalVarDeclarations(
-	pass *analysis.Pass,
 	funcLit *ast.FuncLit,
 ) (declarations []*ast.Ident) {
 	declarations = []*ast.Ident{}
