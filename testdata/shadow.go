@@ -20,4 +20,14 @@ func shadow() {
 			log.Print(err)
 		}
 	}()
+
+	go func() {
+		// err is redeclared here and shadows the outer scope. No diagnostic
+		// should be printed.
+		var err error
+		err = errors.New("shadowing declaration err")
+		if err != nil {
+			log.Print(err)
+		}
+	}()
 }
