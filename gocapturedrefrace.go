@@ -127,8 +127,6 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
-			// TODO: Ignore shadowing variables.
-
 			// Identifier was defined in a different scope.
 			if funcScope != scope {
 				pass.Reportf(
