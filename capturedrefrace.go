@@ -51,6 +51,7 @@
 package capturedrefrace
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -81,6 +82,18 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			goStmt, ok := node.(*ast.GoStmt)
 			if !ok {
 				return
+			}
+
+			fmt.Printf("func: %#v\n", goStmt.Call.Fun)
+			funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
+			if ok {
+				fmt.Printf("funcobj: %#v\n", funcIdent.Obj)
+				t := pass.TypesInfo.Types[funcIdent]
+				fmt.Printf("functype-fromtypesinfo: %#v\n", t)
+				fmt.Printf("funcdecl: %#v\n", funcIdent.Obj.Decl)
+				obj := pass.TypesInfo.Uses[funcIdent]
+				fmt.Printf("funcobj-fromtypesinfo: %#v\n", obj)
+				fmt.Printf("funcobj-fromtypesinfo-type: %#v\n", obj.Type())
 			}
 
 			// Look for a function literal after the `go` statement.
