@@ -51,7 +51,6 @@
 package capturedrefrace
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -103,11 +102,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 
 			// Inspect closure argument list.
-			fmt.Printf("ident: %#v\n", goStmt.Call.Fun)
-			fmt.Printf("pos: %#v\n", pass.Fset.Position(goStmt.Call.Fun.Pos()))
-			fmt.Printf("lit: %#v\n", funcLit)
-			fmt.Printf("type: %#v\n", funcLit.Type)
-			fmt.Printf("params: %#v\n", funcLit.Type.Params)
 			for _, arg := range funcLit.Type.Params.List {
 				// Report reference arguments.
 				_, ok := arg.Type.(*ast.StarExpr)
