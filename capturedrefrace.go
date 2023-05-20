@@ -95,6 +95,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				funcLit, ok = funcLitFromIdent(goStmtFunc)
 
 			default:
+				// The function being run by the `go` statement is an
+				// unsupported type.
 				return
 			}
 			if !ok {
