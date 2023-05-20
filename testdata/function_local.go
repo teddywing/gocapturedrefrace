@@ -28,3 +28,13 @@ func functionLocal() {
 
 	go funcLocal()
 }
+
+type ValueMethodStruct struct {}
+
+func (s ValueMethodStruct) method() {}
+
+func ignoreValueMethods() {
+	s := ValueMethodStruct{}
+
+	go s.method()
+}
