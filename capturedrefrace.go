@@ -144,6 +144,19 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
+func funcLitFromIdent(ident *ast.Ident) *ast.FuncLit {
+	assignStmt, ok := funcIdent.Obj.Decl.(*ast.AssignStmt)
+	if ok {
+		// TODO: Get assignStmt.Rhs[position of ident name in assignStmt.Lhs]
+		for _, expr := range assignStmt.Rhs {
+			fl, ok := expr.(*ast.FuncLit)
+			if ok {
+				fmt.Printf("funclit: %#v\n", fl)
+			}
+		}
+	}
+}
+
 // checkClosure reports variables used in funcLit that are captured from an
 // outer scope.
 func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
