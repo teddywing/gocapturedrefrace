@@ -51,7 +51,6 @@
 package capturedrefrace
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -82,38 +81,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			goStmt, ok := node.(*ast.GoStmt)
 			if !ok {
 				return
-			}
-
-			fmt.Printf("func: %#v\n", goStmt.Call.Fun)
-			funcIdent, ok := goStmt.Call.Fun.(*ast.Ident)
-			if ok {
-				fmt.Printf("funcobj: %#v\n", funcIdent.Obj)
-				t := pass.TypesInfo.Types[funcIdent]
-				fmt.Printf("functype-fromtypesinfo: %#v\n", t)
-				fmt.Printf("funcdecl: %#v\n", funcIdent.Obj.Decl)
-				obj := pass.TypesInfo.Uses[funcIdent]
-				fmt.Printf("funcobj-fromtypesinfo: %#v\n", obj)
-				fmt.Printf("funcobj-fromtypesinfo-type: %#v\n", obj.Type())
-				def := pass.TypesInfo.Defs[funcIdent]
-				fmt.Printf("func def: %#v\n", def)
-
-				obj2 := pass.TypesInfo.ObjectOf(funcIdent)
-				fmt.Printf("obj2: %#v\n", obj2)
-
-				fmt.Printf("obj-parent: %#v\n", obj.Parent())
-
-				fmt.Printf("parent lookup: %#v\n", obj.Parent().Lookup(obj.Name()))
-				// TODO: How to get the scope of the closure?
-
-				das, ok := funcIdent.Obj.Decl.(*ast.AssignStmt)
-				if ok {
-					for _, expr := range das.Rhs {
-						fl, ok := expr.(*ast.FuncLit)
-						if ok {
-							fmt.Printf("funclit: %#v\n", fl)
-						}
-					}
-				}
 			}
 
 			var funcLit *ast.FuncLit
@@ -153,8 +120,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-// TODO: doc
+// funcLitFromIdent takes a variable identifier and looks for a function
+// literal assigned to it, returning the function literal.
 func funcLitFromIdent(funcIdent *ast.Ident) (funcLit *ast.FuncLit, ok bool) {
+	// Find the assignment where the function literal was defined.
 	assignStmt, ok := funcIdent.Obj.Decl.(*ast.AssignStmt)
 	if !ok {
 		return nil, ok
@@ -162,6 +131,8 @@ func funcLitFromIdent(funcIdent *ast.Ident) (funcLit *ast.FuncLit, ok bool) {
 
 	funcVariableName := funcIdent.Name
 
+	// Find the index of funcVariableName in assignStmt.Lhs. We need this to
+	// find the closure in the corresponding assignStmt.Rhs list.
 	assignmentIndex := -1
 	for i, expr := range assignStmt.Lhs {
 		lhsIdent, ok := expr.(*ast.Ident)
@@ -175,20 +146,9 @@ func funcLitFromIdent(funcIdent *ast.Ident) (funcLit *ast.FuncLit, ok bool) {
 		}
 	}
 
-	if assignmentIndex == -1 {
-		return nil, false
-	}
+	if assignmentIndex == -1 ||
+		assignmentIndex > len(assignStmt.Rhs)-1 {
 
-	// TODO: Get assignStmt.Rhs[position of ident name in assignStmt.Lhs]
-	// for _, expr := range assignStmt.Rhs {
-	// 	funcLit, ok := expr.(*ast.FuncLit)
-	// 	if !ok {
-	// 		fmt.Printf("funclit: %#v\n", fl)
-	// 		return nil, ok
-	// 	}
-	// }
-
-	if assignmentIndex > len(assignStmt.Rhs)-1 {
 		return nil, false
 	}
 
