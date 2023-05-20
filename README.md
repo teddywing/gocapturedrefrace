@@ -1,6 +1,8 @@
 gocapturedrefrace
 =================
 
+[![GoDoc](https://godocs.io/gopkg.teddywing.com/capturedrefrace?status.svg)][Documentation]
+
 An analyser that reports captured variable references in goroutine closures.
 
 Goroutines that run function closures can capture reference variables from outer
@@ -61,3 +63,6 @@ the analyser produces the following results:
 ## License
 Copyright © 2023 Teddy Wing. Licensed under the GNU GPLv3+ (see the included
 COPYING file).
+
+
+[Documentation]: https://godocs.io/gopkg.teddywing.com/capturedrefrace
