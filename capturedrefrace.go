@@ -94,6 +94,26 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				obj := pass.TypesInfo.Uses[funcIdent]
 				fmt.Printf("funcobj-fromtypesinfo: %#v\n", obj)
 				fmt.Printf("funcobj-fromtypesinfo-type: %#v\n", obj.Type())
+				def := pass.TypesInfo.Defs[funcIdent]
+				fmt.Printf("func def: %#v\n", def)
+
+				obj2 := pass.TypesInfo.ObjectOf(funcIdent)
+				fmt.Printf("obj2: %#v\n", obj2)
+
+				fmt.Printf("obj-parent: %#v\n", obj.Parent())
+
+				fmt.Printf("parent lookup: %#v\n", obj.Parent().Lookup(obj.Name()))
+				// TODO: How to get the scope of the closure?
+
+				das, ok := funcIdent.Obj.Decl.(*ast.AssignStmt)
+				if ok {
+					for _, expr := range das.Rhs {
+						fl, ok := expr.(*ast.FuncLit)
+						if ok {
+							fmt.Printf("funclit: %#v\n", fl)
+						}
+					}
+				}
 			}
 
 			// Look for a function literal after the `go` statement.
