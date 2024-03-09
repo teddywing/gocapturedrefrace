@@ -56,6 +56,7 @@ import (
 	"go/token"
 	"go/types"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
@@ -221,14 +222,36 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 			if ident.Name == "copied" {
 				fmt.Printf("identifier: %#v, obj: %#v, decl: %#v\n", ident, ident.Obj, ident.Obj.Decl)
-				fmt.Printf("scope: %#v\n", scope)
-				fmt.Printf("funcScope: %#v\n", funcScope)
+				fmt.Printf("  scope: %#v\n", scope)
+				fmt.Printf("    Names: %#v\n", scope.Names())
+				fmt.Printf("  funcScope: %#v\n", funcScope)
+				fmt.Printf("    Names: %#v\n", funcScope.Names())
 				fmt.Println()
 			}
+
+			za := slices.Index(funcScope.Names(), ident.Name)
+			// if za == -1 {
+			// 	return true
+			// }
+			zb := slices.Index(scope.Names(), ident.Name)
+			// if zb == -1 {
+			// 	return true
+			// }
 
 			// TODO: Broken by golang/go a27a525d1b4df74989ac9f6ad10394391fe3eb88
 			// Test with golang.org/x/tools@v0.15.0
 			// Identifier was defined in a different scope.
+			// if funcScope != scope {
+			if za != -1 && zb != -1 && funcScope.Names()[za] == scope.Names()[zb] {
+				pass.Reportf(
+					ident.Pos(),
+					"captured reference %s in goroutine closure",
+					ident,
+				)
+
+				return true
+			}
+
 			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
