@@ -51,6 +51,7 @@
 package capturedrefrace
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -179,6 +180,8 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
+			// fmt.Printf("node: %#v\n", node)
+
 			ident, ok := node.(*ast.Ident)
 			if !ok {
 				return true
@@ -197,6 +200,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 
 			// Find out whether `ident` was defined in an outer scope.
 			scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+			// fmt.Printf("ident: %#v\n\t%#v\n\t%#v\n", ident, scope, scopeObj)
 
 			// Identifier is local to the closure.
 			if scope == nil && scopeObj == nil {
@@ -215,6 +219,15 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
+			if ident.Name == "copied" {
+				fmt.Printf("identifier: %#v, obj: %#v, decl: %#v\n", ident, ident.Obj, ident.Obj.Decl)
+				fmt.Printf("scope: %#v\n", scope)
+				fmt.Printf("funcScope: %#v\n", funcScope)
+				fmt.Println()
+			}
+
+			// TODO: Broken by golang/go a27a525d1b4df74989ac9f6ad10394391fe3eb88
+			// Test with golang.org/x/tools@v0.15.0
 			// Identifier was defined in a different scope.
 			if funcScope != scope {
 				pass.Reportf(
