@@ -56,7 +56,6 @@ import (
 	"go/token"
 	"go/types"
 
-	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
@@ -199,8 +198,12 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				}
 			}
 
+			// Idea: If ident is in funcLit signature, then short-circuit.
+
 			// Find out whether `ident` was defined in an outer scope.
-			scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+			// scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+			// scope, scopeObj := funcScope.LookupParent(ident.Name, funcLit.Body.Lbrace)
+			scope, scopeObj := funcScope.LookupParent(ident.Name, token.NoPos)
 			// fmt.Printf("ident: %#v\n\t%#v\n\t%#v\n", ident, scope, scopeObj)
 
 			// Identifier is local to the closure.
@@ -229,11 +232,11 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				fmt.Println()
 			}
 
-			za := slices.Index(funcScope.Names(), ident.Name)
+			// za := slices.Index(funcScope.Names(), ident.Name)
 			// if za == -1 {
 			// 	return true
 			// }
-			zb := slices.Index(scope.Names(), ident.Name)
+			// zb := slices.Index(scope.Names(), ident.Name)
 			// if zb == -1 {
 			// 	return true
 			// }
@@ -242,16 +245,6 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			// Test with golang.org/x/tools@v0.15.0
 			// Identifier was defined in a different scope.
 			// if funcScope != scope {
-			if za != -1 && zb != -1 && funcScope.Names()[za] == scope.Names()[zb] {
-				pass.Reportf(
-					ident.Pos(),
-					"captured reference %s in goroutine closure",
-					ident,
-				)
-
-				return true
-			}
-
 			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
