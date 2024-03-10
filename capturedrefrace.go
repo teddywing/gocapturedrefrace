@@ -1,4 +1,4 @@
-// Copyright (c) 2023  Teddy Wing
+// Copyright (c) 2023, 2024  Teddy Wing
 //
 // This file is part of Gocapturedrefrace.
 //
