@@ -51,7 +51,6 @@
 package capturedrefrace
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -180,8 +179,6 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 	ast.Inspect(
 		funcLit,
 		func(node ast.Node) bool {
-			// fmt.Printf("node: %#v\n", node)
-
 			ident, ok := node.(*ast.Ident)
 			if !ok {
 				return true
@@ -198,13 +195,40 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				}
 			}
 
-			// Idea: If ident is in funcLit signature, then short-circuit.
-
 			// Find out whether `ident` was defined in an outer scope.
-			// scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
-			// scope, scopeObj := funcScope.LookupParent(ident.Name, funcLit.Body.Lbrace)
+			//
+			// Starting in Go 1.22.0, function scopes in the 'go/types' package
+			// have changed:
+			//
+			// > The start position (Pos) of the lexical environment block
+			// > (Scope) that represents a function body has changed: it used
+			// > to start at the opening curly brace of the function body, but
+			// > now starts at the function's func token.
+			//
+			// (https://go.dev/doc/go1.22#go/types)
+			//
+			// This was caused by the following commit, which corrected
+			// behaviour for gopls:
+			//
+			// https://github.com/golang/go/commit/a27a525d1b4df74989ac9f6ad10394391fe3eb88
+			//
+			// As a result, we can no longer use `ident.NamePos` as the
+			// position for `funcScope.LookupParent`. Doing so causes false
+			// positives for function arguments, incorrectly finding them to be
+			// captured references from the outer scope.
+			//
+			// The commit message of a27a525d1b4df74989ac9f6ad10394391fe3eb88
+			// states:
+			//
+			// > set correct Var.scopePos for parameters/results
+			// >
+			// > Previously, its value was unset (NoPos), but the correct
+			// > value is a point after the signature (FuncType.End) and
+			// > before the body.
+			//
+			// We can restore the previous behaviour by using `token.NoPos`
+			// instead of `ident.NamePos`.
 			scope, scopeObj := funcScope.LookupParent(ident.Name, token.NoPos)
-			// fmt.Printf("ident: %#v\n\t%#v\n\t%#v\n", ident, scope, scopeObj)
 
 			// Identifier is local to the closure.
 			if scope == nil && scopeObj == nil {
@@ -223,28 +247,7 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 				return true
 			}
 
-			if ident.Name == "copied" {
-				fmt.Printf("identifier: %#v, obj: %#v, decl: %#v\n", ident, ident.Obj, ident.Obj.Decl)
-				fmt.Printf("  scope: %#v\n", scope)
-				fmt.Printf("    Names: %#v\n", scope.Names())
-				fmt.Printf("  funcScope: %#v\n", funcScope)
-				fmt.Printf("    Names: %#v\n", funcScope.Names())
-				fmt.Println()
-			}
-
-			// za := slices.Index(funcScope.Names(), ident.Name)
-			// if za == -1 {
-			// 	return true
-			// }
-			// zb := slices.Index(scope.Names(), ident.Name)
-			// if zb == -1 {
-			// 	return true
-			// }
-
-			// TODO: Broken by golang/go a27a525d1b4df74989ac9f6ad10394391fe3eb88
-			// Test with golang.org/x/tools@v0.15.0
 			// Identifier was defined in a different scope.
-			// if funcScope != scope {
 			if funcScope != scope {
 				pass.Reportf(
 					ident.Pos(),
