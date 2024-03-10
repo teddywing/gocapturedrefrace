@@ -196,7 +196,39 @@ func checkClosure(pass *analysis.Pass, funcLit *ast.FuncLit) {
 			}
 
 			// Find out whether `ident` was defined in an outer scope.
-			scope, scopeObj := funcScope.LookupParent(ident.Name, ident.NamePos)
+			//
+			// Starting in Go 1.22.0, function scopes in the 'go/types' package
+			// have changed:
+			//
+			// > The start position (Pos) of the lexical environment block
+			// > (Scope) that represents a function body has changed: it used
+			// > to start at the opening curly brace of the function body, but
+			// > now starts at the function's func token.
+			//
+			// (https://go.dev/doc/go1.22#go/types)
+			//
+			// This was caused by the following commit, which corrected
+			// behaviour for gopls:
+			//
+			// https://github.com/golang/go/commit/a27a525d1b4df74989ac9f6ad10394391fe3eb88
+			//
+			// As a result, we can no longer use `ident.NamePos` as the
+			// position for `funcScope.LookupParent`. Doing so causes false
+			// positives for function arguments, incorrectly finding them to be
+			// captured references from the outer scope.
+			//
+			// The commit message of a27a525d1b4df74989ac9f6ad10394391fe3eb88
+			// states:
+			//
+			// > set correct Var.scopePos for parameters/results
+			// >
+			// > Previously, its value was unset (NoPos), but the correct
+			// > value is a point after the signature (FuncType.End) and
+			// > before the body.
+			//
+			// We can restore the previous behaviour by using `token.NoPos`
+			// instead of `ident.NamePos`.
+			scope, scopeObj := funcScope.LookupParent(ident.Name, token.NoPos)
 
 			// Identifier is local to the closure.
 			if scope == nil && scopeObj == nil {
